@@ -93,11 +93,11 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold mb-4">Cumulative P&L Over Time</h2>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={plOverTime}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 16%)" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(0 0% 55%)" }} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(0 0% 55%)" }} />
-              <Tooltip contentStyle={{ backgroundColor: "hsl(0 0% 9%)", border: "1px solid hsl(0 0% 16%)", borderRadius: 8, color: "hsl(0 0% 95%)" }} />
-              <Line type="monotone" dataKey="cumPL" stroke="hsl(155 100% 50%)" strokeWidth={2} dot={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(228 25% 16%)" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(228 15% 55%)" }} />
+              <YAxis tick={{ fontSize: 11, fill: "hsl(228 15% 55%)" }} />
+              <Tooltip contentStyle={{ backgroundColor: "hsl(228 35% 10%)", border: "1px solid hsl(228 25% 16%)", borderRadius: 8, color: "hsl(220 20% 95%)" }} />
+              <Line type="monotone" dataKey="cumPL" stroke="hsl(235 80% 65%)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
