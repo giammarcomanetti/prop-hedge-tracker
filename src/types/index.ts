@@ -1,7 +1,7 @@
 export type FeeRefundPolicy = "First payout" | "Third payout" | "Fourth payout" | "Never";
-export type CycleStatus = "Active" | "Completed" | "Abandoned";
-export type PhaseType = "1st Step" | "2nd Step" | "Funded Hedge";
-export type PhaseStatus = "Pass" | "Fail" | "Active" | "Not Started";
+export type CycleStatus = "Active" | "Completed";
+export type PhaseType = "Phase 1" | "Phase 2";
+export type PhaseStatus = "Active" | "Pass" | "Fail";
 
 export interface Provider {
   id: string;
@@ -19,15 +19,14 @@ export interface Client {
 export interface Cycle {
   id: string;
   cycle_id: number;
-  cycle_name: string;
-  client_id: string;
-  provider_id: string;
+  client_name: string;
+  prop_firm: string;
   account_size: number;
   challenge_fee: number;
   start_date: string;
   end_date: string;
   cycle_status: CycleStatus;
-  notes: string;
+  broker_gain: number; // only set when prop blown
 }
 
 export interface Phase {
@@ -35,17 +34,14 @@ export interface Phase {
   cycle_id: string;
   phase_type: PhaseType;
   order: number;
-  start_date: string;
-  end_date: string;
   status: PhaseStatus;
-  real_deposit: number;
-  bonus_used: number;
-  broker_pl_phase: number;
-  bonus_lost_phase: number;
-  trades_executed: number;
-  recovery_rate_set: number;
-  recovery_rate_real: number;
-  notes: string;
+  broker_loss: number; // loss on broker when phase passed
+}
+
+export interface CycleWithCalculations extends Cycle {
+  phases: Phase[];
+  accumulated_costs: number; // challenge_fee + sum of broker losses from passed phases
+  cycle_pl: number;
 }
 
 export interface Payout {
@@ -57,23 +53,4 @@ export interface Payout {
   includes_fee_refund: boolean;
   fee_refund_amount: number;
   notes: string;
-}
-
-// Computed types
-export interface CycleWithCalculations extends Cycle {
-  phases: Phase[];
-  payouts: Payout[];
-  client?: Client;
-  provider?: Provider;
-  total_real_broker_losses: number;
-  total_bonus_lost: number;
-  total_bonus_used: number;
-  total_payouts_received: number;
-  total_fee_refunds: number;
-  fee_refunded: boolean;
-  break_even_reached: boolean;
-  payout_at_break_even: number | null;
-  cycle_pl: number;
-  duration_days: number | null;
-  distance_to_break_even: number;
 }
