@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, XCircle, CheckCircle, AlertTriangle, Trash2, Plus, Calculator, DollarSign, Target } from "lucide-react";
+import { ArrowLeft, XCircle, CheckCircle, AlertTriangle, Plus, DollarSign } from "lucide-react";
 
 import CycleHeader from "@/components/cycle/CycleHeader";
 import AccumulatedCostsCard from "@/components/cycle/AccumulatedCostsCard";
