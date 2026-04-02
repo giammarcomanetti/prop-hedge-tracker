@@ -61,7 +61,7 @@ export default function CyclesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>Challenge Fee ($)</Label><Input type="number" value={form.challenge_fee} onChange={e => setForm(p => ({ ...p, challenge_fee: e.target.value }))} placeholder="e.g. 500" /></div>
+              <div><Label>Challenge Fee ($)</Label><Input type="number" min="0" value={form.challenge_fee} onChange={e => setForm(p => ({ ...p, challenge_fee: e.target.value.replace(/^-/, "") }))} placeholder="e.g. 500" /></div>
               <div><Label>Start Date</Label><Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} /></div>
               <Button onClick={handleAdd} className="w-full">Create Cycle</Button>
             </div>

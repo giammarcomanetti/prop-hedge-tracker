@@ -1,6 +1,6 @@
 export type FeeRefundPolicy = "First payout" | "Third payout" | "Fourth payout" | "Never";
 export type CycleStatus = "Active" | "Completed";
-export type PhaseType = "Phase 1" | "Phase 2";
+export type PhaseType = "Phase 1" | "Phase 2" | "Funded Hedge";
 export type PhaseStatus = "Active" | "Pass" | "Fail";
 
 export interface Provider {
@@ -36,21 +36,26 @@ export interface Phase {
   order: number;
   status: PhaseStatus;
   broker_loss: number; // loss on broker when phase passed
+  session_number?: number; // for Funded Hedge sessions
 }
 
 export interface CycleWithCalculations extends Cycle {
   phases: Phase[];
   accumulated_costs: number; // challenge_fee + sum of broker losses from passed phases
   cycle_pl: number;
+  total_net_payouts: number;
+  remaining_costs: number;
+  is_risk_free: boolean;
 }
 
 export interface Payout {
   id: string;
   cycle_id: string;
+  phase_id: string; // linked to the funded hedge session
   payout_number: number;
-  amount: number;
+  gross_amount: number;
+  profit_split_pct: number;
+  net_amount: number;
   date: string;
-  includes_fee_refund: boolean;
-  fee_refund_amount: number;
   notes: string;
 }
