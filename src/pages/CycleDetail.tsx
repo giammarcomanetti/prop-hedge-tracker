@@ -10,11 +10,6 @@ import { ArrowLeft, XCircle, CheckCircle, AlertTriangle, Trash2, Plus, Calculato
 
 import CycleHeader from "@/components/cycle/CycleHeader";
 import AccumulatedCostsCard from "@/components/cycle/AccumulatedCostsCard";
-import PhaseCard from "@/components/cycle/PhaseCard";
-import PropBlownDialog from "@/components/cycle/PropBlownDialog";
-import PhasePassedDialog from "@/components/cycle/PhasePassedDialog";
-import FundedHedgeBlownDialog from "@/components/cycle/FundedHedgeBlownDialog";
-import PayoutReceivedDialog from "@/components/cycle/PayoutReceivedDialog";
 import FundedHedgeCalculator from "@/components/cycle/FundedHedgeCalculator";
 
 export default function CycleDetail() {
