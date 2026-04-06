@@ -1,12 +1,13 @@
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, RefreshCw, Users, Building2, Settings, TrendingUp } from "lucide-react";
+import { LayoutDashboard, RefreshCw, Users, Building2, Settings, TrendingUp, Calculator } from "lucide-react";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/cycles", label: "Cycles", icon: RefreshCw },
   { to: "/clients", label: "Clients", icon: Users },
   { to: "/providers", label: "Providers", icon: Building2 },
+  { to: "/hedging-calculator", label: "Hedging Calc", icon: Calculator },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
