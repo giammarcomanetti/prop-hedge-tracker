@@ -11,6 +11,7 @@ import CycleDetail from "@/pages/CycleDetail";
 import ClientsPage from "@/pages/ClientsPage";
 import ProvidersPage from "@/pages/ProvidersPage";
 import SettingsPage from "@/pages/SettingsPage";
+import HedgingCalculatorPage from "@/pages/HedgingCalculatorPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
