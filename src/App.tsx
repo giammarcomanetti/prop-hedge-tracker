@@ -32,6 +32,7 @@ const App = () => (
                 <Route path="/cycles/:id" element={<CycleDetail />} />
                 <Route path="/clients" element={<ClientsPage />} />
                 <Route path="/providers" element={<ProvidersPage />} />
+                <Route path="/hedging-calculator" element={<HedgingCalculatorPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
