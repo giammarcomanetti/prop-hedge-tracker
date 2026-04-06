@@ -152,13 +152,13 @@ export default function HedgingCalculatorPage() {
             <Card>
               <CardContent className="p-4">
                 <p className="text-xs uppercase text-muted-foreground mb-1">H base (pre-safety)</p>
-                <p className="text-lg font-bold text-blue-400">{fmt(results.H_base)}</p>
+                <p className="text-lg font-bold text-primary">{fmt(results.H_base)}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
                 <p className="text-xs uppercase text-muted-foreground mb-1">🎯 EA Target to Set</p>
-                <p className="text-lg font-bold text-yellow-400">{fmt(results.T)}</p>
+                <p className="text-lg font-bold text-accent-foreground">{fmt(results.T)}</p>
               </CardContent>
             </Card>
             <Card>
@@ -170,7 +170,7 @@ export default function HedgingCalculatorPage() {
             <Card>
               <CardContent className="p-4">
                 <p className="text-xs uppercase text-muted-foreground mb-1">🔁 Sustainable 1% Cycles</p>
-                <p className="text-lg font-bold text-blue-400">{results.U.toFixed(2)} cycles</p>
+                <p className="text-lg font-bold text-primary">{results.U.toFixed(2)} cycles</p>
               </CardContent>
             </Card>
           </div>
