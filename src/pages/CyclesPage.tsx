@@ -71,8 +71,36 @@ export default function CyclesPage() {
           <DialogContent className="bg-card border-border">
             <DialogHeader><DialogTitle>New Cycle</DialogTitle></DialogHeader>
             <div className="space-y-4">
-              <div><Label>Client Name</Label><Input value={form.client_name} onChange={e => setForm(p => ({ ...p, client_name: e.target.value }))} placeholder="e.g. Giammarco Manetti" /></div>
-              <div><Label>Prop Firm</Label><Input value={form.prop_firm} onChange={e => handlePropFirmChange(e.target.value)} placeholder="e.g. FTMO, FundingPips" /></div>
+              <div>
+                <Label>Client</Label>
+                {clients.length === 0 ? (
+                  <p className="text-xs text-muted-foreground mt-1">No clients yet. Add clients in the Clients page first.</p>
+                ) : (
+                  <Select value={form.client_name} onValueChange={v => setForm(p => ({ ...p, client_name: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger>
+                    <SelectContent>
+                      {clients.map(c => (
+                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <div>
+                <Label>Prop Firm</Label>
+                {providers.length === 0 ? (
+                  <p className="text-xs text-muted-foreground mt-1">No providers yet. Add providers in the Providers page first.</p>
+                ) : (
+                  <Select value={form.prop_firm} onValueChange={handlePropFirmChange}>
+                    <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                    <SelectContent>
+                      {providers.map(p => (
+                        <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
               <div><Label>Account Size</Label>
                 <Select value={form.account_size} onValueChange={v => setForm(p => ({ ...p, account_size: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
