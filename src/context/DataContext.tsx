@@ -95,7 +95,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const totalBrokerLosses = cyclePhases
       .filter(p => p.status === "Pass" || (p.phase_type === "Funded Hedge" && p.status !== "Fail"))
       .reduce((sum, p) => sum + p.broker_loss, 0);
-    const accumulated_costs = cycle.challenge_fee + totalBrokerLosses;
+
+    // Determine if the challenge fee has been refunded based on payout count and policy
+    const payoutCount = cyclePayouts.length;
+    const policy = cycle.fee_refund_policy || "Never";
+    const refundThreshold: Record<string, number> = {
+      "First payout": 1,
+      "Second payout": 2,
+      "Third payout": 3,
+      "Fourth payout": 4,
+      "Never": Infinity,
+    };
+    const fee_refunded = payoutCount >= (refundThreshold[policy] ?? Infinity);
+    const effectiveFee = fee_refunded ? 0 : cycle.challenge_fee;
+
+    const accumulated_costs = effectiveFee + totalBrokerLosses;
 
     const total_net_payouts = cyclePayouts.reduce((sum, p) => sum + p.net_amount, 0);
     const remaining_costs = accumulated_costs - total_net_payouts;
@@ -110,7 +124,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    return { ...cycle, phases: cyclePhases, accumulated_costs, cycle_pl, total_net_payouts, remaining_costs, is_risk_free };
+    return { ...cycle, phases: cyclePhases, accumulated_costs, fee_refunded, cycle_pl, total_net_payouts, remaining_costs, is_risk_free };
   }, [cycles, phases, payouts]);
 
   const getAllCyclesWithCalcs = useCallback(() => {

@@ -7,19 +7,36 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, ChevronRight } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Plus, ChevronRight, Info } from "lucide-react";
+import { FeeRefundPolicy } from "@/types";
 
 const ACCOUNT_SIZES = [5000, 10000, 25000, 50000, 100000, 200000];
+const FEE_REFUND_OPTIONS: { value: FeeRefundPolicy; label: string }[] = [
+  { value: "Never", label: "Never" },
+  { value: "First payout", label: "1st Payout" },
+  { value: "Second payout", label: "2nd Payout" },
+  { value: "Third payout", label: "3rd Payout" },
+  { value: "Fourth payout", label: "4th Payout" },
+];
 
 export default function CyclesPage() {
-  const { getAllCyclesWithCalcs, addCycle } = useData();
+  const { getAllCyclesWithCalcs, addCycle, providers } = useData();
   const navigate = useNavigate();
   const allCycles = getAllCyclesWithCalcs();
   const [open, setOpen] = useState(false);
 
   const [form, setForm] = useState({
-    client_name: "", prop_firm: "", account_size: "", challenge_fee: "", start_date: "",
+    client_name: "", prop_firm: "", account_size: "", challenge_fee: "", start_date: "", fee_refund_policy: "Never" as FeeRefundPolicy,
   });
+
+  // Auto-fill fee refund policy when prop firm changes
+  const handlePropFirmChange = (value: string) => {
+    setForm(p => {
+      const provider = providers.find(pr => pr.name.toLowerCase() === value.toLowerCase());
+      return { ...p, prop_firm: value, fee_refund_policy: provider?.fee_refund_policy ?? p.fee_refund_policy };
+    });
+  };
 
   const handleAdd = () => {
     if (!form.client_name || !form.prop_firm || !form.account_size) return;
@@ -28,9 +45,10 @@ export default function CyclesPage() {
       prop_firm: form.prop_firm,
       account_size: parseFloat(form.account_size),
       challenge_fee: parseFloat(form.challenge_fee) || 0,
+      fee_refund_policy: form.fee_refund_policy,
       start_date: form.start_date || new Date().toISOString().split("T")[0],
     });
-    setForm({ client_name: "", prop_firm: "", account_size: "", challenge_fee: "", start_date: "" });
+    setForm({ client_name: "", prop_firm: "", account_size: "", challenge_fee: "", start_date: "", fee_refund_policy: "Never" });
     setOpen(false);
     navigate(`/cycles/${id}`);
   };
@@ -50,7 +68,7 @@ export default function CyclesPage() {
             <DialogHeader><DialogTitle>New Cycle</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div><Label>Client Name</Label><Input value={form.client_name} onChange={e => setForm(p => ({ ...p, client_name: e.target.value }))} placeholder="e.g. Giammarco Manetti" /></div>
-              <div><Label>Prop Firm</Label><Input value={form.prop_firm} onChange={e => setForm(p => ({ ...p, prop_firm: e.target.value }))} placeholder="e.g. FTMO, FundingPips" /></div>
+              <div><Label>Prop Firm</Label><Input value={form.prop_firm} onChange={e => handlePropFirmChange(e.target.value)} placeholder="e.g. FTMO, FundingPips" /></div>
               <div><Label>Account Size</Label>
                 <Select value={form.account_size} onValueChange={v => setForm(p => ({ ...p, account_size: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
@@ -61,7 +79,32 @@ export default function CyclesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>Challenge Fee ($)</Label><Input type="number" min="0" value={form.challenge_fee} onChange={e => setForm(p => ({ ...p, challenge_fee: e.target.value.replace(/^-/, "") }))} placeholder="e.g. 500" /></div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <Label>Challenge Fee ($)</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-[220px] text-xs">This fee may be refunded by the provider after a certain number of payouts. Check provider settings.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Input type="number" min="0" value={form.challenge_fee} onChange={e => setForm(p => ({ ...p, challenge_fee: e.target.value.replace(/^-/, "") }))} placeholder="e.g. 500" />
+              </div>
+              <div><Label>Fee Refund Policy</Label>
+                <Select value={form.fee_refund_policy} onValueChange={v => setForm(p => ({ ...p, fee_refund_policy: v as FeeRefundPolicy }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FEE_REFUND_OPTIONS.map(o => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div><Label>Start Date</Label><Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} /></div>
               <Button onClick={handleAdd} className="w-full">Create Cycle</Button>
             </div>
@@ -95,6 +138,9 @@ export default function CyclesPage() {
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">Accumulated Costs</p>
                     <p className="font-bold text-negative">{formatCurrencyUnsigned(c.accumulated_costs)}</p>
+                    {c.fee_refunded && (
+                      <p className="text-[10px] text-positive">Fee refunded</p>
+                    )}
                   </div>
                   {c.cycle_status === "Completed" && (
                     <div className="text-right">

@@ -1,4 +1,4 @@
-export type FeeRefundPolicy = "First payout" | "Third payout" | "Fourth payout" | "Never";
+export type FeeRefundPolicy = "First payout" | "Second payout" | "Third payout" | "Fourth payout" | "Never";
 export type CycleStatus = "Active" | "Completed";
 export type PhaseType = "Phase 1" | "Phase 2" | "Funded Hedge";
 export type PhaseStatus = "Active" | "Pass" | "Fail";
@@ -23,6 +23,7 @@ export interface Cycle {
   prop_firm: string;
   account_size: number;
   challenge_fee: number;
+  fee_refund_policy: FeeRefundPolicy;
   start_date: string;
   end_date: string;
   cycle_status: CycleStatus;
@@ -41,7 +42,8 @@ export interface Phase {
 
 export interface CycleWithCalculations extends Cycle {
   phases: Phase[];
-  accumulated_costs: number; // challenge_fee + sum of broker losses from passed phases
+  accumulated_costs: number; // challenge_fee (if not refunded) + sum of broker losses from passed phases
+  fee_refunded: boolean; // whether the challenge fee has been refunded based on payout count
   cycle_pl: number;
   total_net_payouts: number;
   remaining_costs: number;

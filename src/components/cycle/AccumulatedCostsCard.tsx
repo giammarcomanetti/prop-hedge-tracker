@@ -1,21 +1,32 @@
 import { CycleWithCalculations } from "@/types";
 import { formatCurrency, formatCurrencyUnsigned, plColor } from "@/lib/format";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   cycle: CycleWithCalculations;
 }
 
 export default function AccumulatedCostsCard({ cycle }: Props) {
+  const refundPolicyLabel = cycle.fee_refund_policy !== "Never" ? cycle.fee_refund_policy : null;
+
   return (
     <div className="bg-card border border-border rounded-xl p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Total Accumulated Costs</p>
-          <p className="text-3xl font-bold text-negative mt-1">{formatCurrencyUnsigned(cycle.accumulated_costs)}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-3xl font-bold text-negative">{formatCurrencyUnsigned(cycle.accumulated_costs)}</p>
+            {cycle.fee_refunded && (
+              <Badge variant="secondary" className="bg-positive/15 text-positive border-positive/30 text-[10px]">
+                Fee refunded at {refundPolicyLabel}
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="text-right space-y-1">
           <div className="text-xs text-muted-foreground">
-            Challenge Fee: <span className="text-foreground">{formatCurrencyUnsigned(cycle.challenge_fee)}</span>
+            Challenge Fee: <span className={cycle.fee_refunded ? "text-muted-foreground line-through" : "text-foreground"}>{formatCurrencyUnsigned(cycle.challenge_fee)}</span>
+            {cycle.fee_refunded && <span className="text-positive ml-1">(refunded)</span>}
           </div>
           {cycle.phases.filter(p => p.broker_loss > 0 && p.status === "Pass").map(p => (
             <div key={p.id} className="text-xs text-muted-foreground">
@@ -38,6 +49,13 @@ export default function AccumulatedCostsCard({ cycle }: Props) {
               {cycle.remaining_costs <= 0 ? "🎯 RISK FREE" : formatCurrencyUnsigned(cycle.remaining_costs)}
             </span>
           </div>
+        </div>
+      )}
+
+      {/* Refund policy note when not yet refunded */}
+      {!cycle.fee_refunded && refundPolicyLabel && (
+        <div className="mt-3 text-xs text-muted-foreground">
+          💡 Fee will be refunded at <span className="text-foreground font-medium">{refundPolicyLabel}</span>
         </div>
       )}
 
