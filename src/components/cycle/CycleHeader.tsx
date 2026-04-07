@@ -21,6 +21,7 @@ export default function CycleHeader({ cycle, onDelete }: Props) {
           <div className="flex gap-6 text-sm text-muted-foreground">
             <span>Account: <span className="text-foreground">{formatCurrencyUnsigned(cycle.account_size)}</span></span>
             <span>Fee: <span className="text-foreground">{formatCurrencyUnsigned(cycle.challenge_fee)}</span></span>
+            <span>Refund: <span className="text-foreground">{cycle.fee_refund_policy || "Never"}</span></span>
             <span>Started: <span className="text-foreground">{cycle.start_date}</span></span>
             {cycle.end_date && <span>Ended: <span className="text-foreground">{cycle.end_date}</span></span>}
           </div>
