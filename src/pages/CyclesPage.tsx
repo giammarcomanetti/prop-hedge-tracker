@@ -21,7 +21,7 @@ const FEE_REFUND_OPTIONS: { value: FeeRefundPolicy; label: string }[] = [
 ];
 
 export default function CyclesPage() {
-  const { getAllCyclesWithCalcs, addCycle, providers } = useData();
+  const { getAllCyclesWithCalcs, addCycle, providers, clients } = useData();
   const navigate = useNavigate();
   const allCycles = getAllCyclesWithCalcs();
   const [open, setOpen] = useState(false);
@@ -32,14 +32,17 @@ export default function CyclesPage() {
 
   // Auto-fill fee refund policy when prop firm changes
   const handlePropFirmChange = (value: string) => {
-    setForm(p => {
-      const provider = providers.find(pr => pr.name.toLowerCase() === value.toLowerCase());
-      return { ...p, prop_firm: value, fee_refund_policy: provider?.fee_refund_policy ?? p.fee_refund_policy };
-    });
+    const provider = providers.find(pr => pr.name === value);
+    console.log("[CyclesPage] Provider selected:", value, "Found:", provider?.name, "Policy:", provider?.fee_refund_policy);
+    setForm(p => ({ ...p, prop_firm: value, fee_refund_policy: provider?.fee_refund_policy ?? p.fee_refund_policy }));
   };
 
   const handleAdd = () => {
-    if (!form.client_name || !form.prop_firm || !form.account_size) return;
+    console.log("[CyclesPage] handleAdd called, form:", form);
+    if (!form.client_name || !form.prop_firm || !form.account_size) {
+      console.log("[CyclesPage] Validation failed - missing fields");
+      return;
+    }
     const id = addCycle({
       client_name: form.client_name,
       prop_firm: form.prop_firm,
@@ -48,6 +51,7 @@ export default function CyclesPage() {
       fee_refund_policy: form.fee_refund_policy,
       start_date: form.start_date || new Date().toISOString().split("T")[0],
     });
+    console.log("[CyclesPage] Cycle created with id:", id);
     setForm({ client_name: "", prop_firm: "", account_size: "", challenge_fee: "", start_date: "", fee_refund_policy: "Never" });
     setOpen(false);
     navigate(`/cycles/${id}`);
