@@ -75,18 +75,28 @@ export default function HedgingCalculatorPage() {
     const H_base = num / denom;
     const H_final = H_base * ss;
 
-    const T = L / r_ea;
-    const P = T * dd;
-    const U = H_final / P;
-    const G_lordo = U * C;
-    const G_netto = G_lordo * r_split;
-    const totale = L + H_final;
-    const surplus = G_netto - totale;
-    const pct_fill = Math.min(100, (G_netto / totale) * 100);
+    const T_base = L / r_ea;
+    const P_base = T_base * dd;
+    const U_base = H_base / P_base;
+    const G_lordo_base = U_base * C;
+    const G_netto_base = G_lordo_base * r_split;
+    const totale_base = L + H_base;
+    const surplus_base = G_netto_base - totale_base;
+    const pct_fill_base = Math.min(100, (G_netto_base / totale_base) * 100);
+
+    const P_rec = T_base * dd;
+    const U_rec = H_final / P_rec;
+    const G_lordo_rec = U_rec * C;
+    const G_netto_rec = G_lordo_rec * r_split;
+    const totale_rec = L + H_final;
+    const surplus_rec = G_netto_rec - totale_rec;
+    const pct_fill_rec = Math.min(100, (G_netto_rec / totale_rec) * 100);
 
     return {
       error: false,
-      H_final, T, G_netto, totale, surplus, pct_fill,
+      H_base, H_final, T: T_base,
+      G_netto_base, totale_base, surplus_base, pct_fill_base,
+      G_netto_rec, totale_rec, surplus_rec, pct_fill_rec,
     } as const;
   }, [L, cBal, rEa, rSplit, d, S]);
 
