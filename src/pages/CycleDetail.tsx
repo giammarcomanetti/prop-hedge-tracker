@@ -172,17 +172,18 @@ export default function CycleDetail() {
 
   const openPayoutDialog = (phaseId: string) => {
     setActivePhaseId(phaseId);
-    setGrossPayout("");
+    setPayoutAmount("");
     setProfitSplit("80");
     setSessionBrokerLoss("");
+    setPayoutInputMode("gross");
     setPayoutOpen(true);
   };
 
   // Realtime payout preview calculations
-  const previewGross = parseFloat(grossPayout) || 0;
+  const previewAmount = parseFloat(payoutAmount) || 0;
   const previewSplit = parseFloat(profitSplit) || 80;
   const previewSessionLoss = parseFloat(sessionBrokerLoss) || 0;
-  const previewNet = previewGross * (previewSplit / 100);
+  const previewNet = payoutInputMode === "gross" ? previewAmount * (previewSplit / 100) : previewAmount;
   const previewNewAccumulated = cycle.accumulated_costs + previewSessionLoss;
   const previewRemaining = previewNewAccumulated - cycle.total_net_payouts - previewNet;
 
