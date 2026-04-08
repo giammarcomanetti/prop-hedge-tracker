@@ -465,6 +465,12 @@ export default function CycleDetail() {
                     <span className="text-negative font-medium">{formatCurrencyUnsigned(previewSessionLoss)}</span>
                   </div>
                 )}
+                {willRefundNow && (
+                  <div className="flex justify-between">
+                    <span className="text-positive font-medium">Fee Refund Applied:</span>
+                    <span className="text-positive font-medium">-{formatCurrencyUnsigned(feeRefundAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">New accumulated costs:</span>
                   <span className="text-negative font-medium">{formatCurrencyUnsigned(previewNewAccumulated)}</span>
