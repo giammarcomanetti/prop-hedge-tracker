@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, XCircle, CheckCircle, AlertTriangle, Plus, DollarSign } from "lucide-react";
 
 import CycleHeader from "@/components/cycle/CycleHeader";
@@ -27,7 +28,8 @@ export default function CycleDetail() {
   const [activePhaseId, setActivePhaseId] = useState<string | null>(null);
 
   // Funded hedge payout fields
-  const [grossPayout, setGrossPayout] = useState("");
+  const [payoutInputMode, setPayoutInputMode] = useState<"gross" | "net">("gross");
+  const [payoutAmount, setPayoutAmount] = useState("");
   const [profitSplit, setProfitSplit] = useState("80");
   const [sessionBrokerLoss, setSessionBrokerLoss] = useState("");
   const [fundedBrokerGain, setFundedBrokerGain] = useState("");
@@ -97,10 +99,15 @@ export default function CycleDetail() {
   const handlePayoutReceived = () => {
     const phase = cycle.phases.find(p => p.id === activePhaseId);
     if (!phase) return;
-    const gross = parseFloat(grossPayout) || 0;
+    const amount = parseFloat(payoutAmount) || 0;
     const split = parseFloat(profitSplit) || 80;
     const loss = parseFloat(sessionBrokerLoss) || 0;
-    const netAmount = gross * (split / 100);
+
+    // Calculate net based on input mode
+    const netAmount = payoutInputMode === "gross" ? amount * (split / 100) : amount;
+    const grossAmount = payoutInputMode === "gross" ? amount : amount / (split / 100);
+
+    console.log(`[Payout] Mode: ${payoutInputMode}, Amount: ${amount}, Net: ${netAmount}, Gross: ${grossAmount}, Loss: ${loss}`);
 
     // Record broker loss on this session
     updatePhase({ ...phase, status: "Pass", broker_loss: loss });
@@ -111,16 +118,17 @@ export default function CycleDetail() {
       cycle_id: cycle.id,
       phase_id: phase.id,
       payout_number: payoutNumber,
-      gross_amount: gross,
+      gross_amount: grossAmount,
       profit_split_pct: split,
       net_amount: netAmount,
       date: new Date().toISOString().split("T")[0],
       notes: "",
     });
 
-    setGrossPayout("");
+    setPayoutAmount("");
     setProfitSplit("80");
     setSessionBrokerLoss("");
+    setPayoutInputMode("gross");
     setPayoutOpen(false);
   };
 
@@ -164,17 +172,18 @@ export default function CycleDetail() {
 
   const openPayoutDialog = (phaseId: string) => {
     setActivePhaseId(phaseId);
-    setGrossPayout("");
+    setPayoutAmount("");
     setProfitSplit("80");
     setSessionBrokerLoss("");
+    setPayoutInputMode("gross");
     setPayoutOpen(true);
   };
 
   // Realtime payout preview calculations
-  const previewGross = parseFloat(grossPayout) || 0;
+  const previewAmount = parseFloat(payoutAmount) || 0;
   const previewSplit = parseFloat(profitSplit) || 80;
   const previewSessionLoss = parseFloat(sessionBrokerLoss) || 0;
-  const previewNet = previewGross * (previewSplit / 100);
+  const previewNet = payoutInputMode === "gross" ? previewAmount * (previewSplit / 100) : previewAmount;
   const previewNewAccumulated = cycle.accumulated_costs + previewSessionLoss;
   const previewRemaining = previewNewAccumulated - cycle.total_net_payouts - previewNet;
 
@@ -303,7 +312,7 @@ export default function CycleDetail() {
           {/* Risk free banner + close cycle button */}
           {cycle.is_risk_free && cycle.cycle_status === "Active" && (
             <div className="bg-positive/10 border border-positive/30 rounded-xl p-5 text-center space-y-3">
-              <p className="text-lg font-bold text-positive">🎯 RISK FREE — all costs recovered!</p>
+              <p className="text-lg font-bold text-positive">🎯 RISK FREE — Surplus: {formatCurrencyUnsigned(Math.abs(cycle.remaining_costs))}</p>
               <p className="text-sm text-muted-foreground">You can continue adding sessions or close the cycle.</p>
               <Button onClick={handleCloseCycleCompleted}>
                 <CheckCircle className="w-4 h-4 mr-1" /> Close Cycle as Completed
@@ -396,22 +405,39 @@ export default function CycleDetail() {
       {/* Payout Received Dialog */}
       <Dialog open={payoutOpen} onOpenChange={setPayoutOpen}>
         <DialogContent className="bg-card border-border">
-          <DialogHeader><DialogTitle className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-positive" /> Payout Received</DialogTitle></DialogHeader>
+           <DialogHeader><DialogTitle className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-positive" /> Payout Received</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Gross Payout ($)</Label>
-              <Input type="number" min="0" value={grossPayout} onChange={e => setGrossPayout(e.target.value)} placeholder="e.g. 5000" autoFocus />
+            {/* Gross/Net Toggle */}
+            <div className="flex items-center gap-3">
+              <span className={`text-sm ${payoutInputMode === "gross" ? "text-foreground font-medium" : "text-muted-foreground"}`}>Gross Payout</span>
+              <Switch
+                checked={payoutInputMode === "net"}
+                onCheckedChange={(checked) => {
+                  setPayoutInputMode(checked ? "net" : "gross");
+                  setPayoutAmount("");
+                }}
+              />
+              <span className={`text-sm ${payoutInputMode === "net" ? "text-foreground font-medium" : "text-muted-foreground"}`}>Net Payout</span>
             </div>
+
             <div>
-              <Label>Profit Split (%)</Label>
-              <Input type="number" min="0" max="100" value={profitSplit} onChange={e => setProfitSplit(e.target.value)} placeholder="80" />
+              <Label>{payoutInputMode === "gross" ? "Gross Payout ($)" : "Net Payout ($)"}</Label>
+              <Input type="number" min="0" value={payoutAmount} onChange={e => setPayoutAmount(e.target.value)} placeholder="e.g. 5000" autoFocus />
             </div>
+
+            {payoutInputMode === "gross" && (
+              <div>
+                <Label>Profit Split (%)</Label>
+                <Input type="number" min="0" max="100" value={profitSplit} onChange={e => setProfitSplit(e.target.value)} placeholder="80" />
+              </div>
+            )}
+
             <div>
               <Label>Broker Loss This Session ($)</Label>
               <Input type="number" min="0" value={sessionBrokerLoss} onChange={e => setSessionBrokerLoss(e.target.value)} placeholder="e.g. 800" />
             </div>
 
-            {(grossPayout || sessionBrokerLoss) && (
+            {(payoutAmount || sessionBrokerLoss) && (
               <div className="bg-secondary/50 rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Net payout:</span>
@@ -435,7 +461,7 @@ export default function CycleDetail() {
                 </div>
                 <p className={`text-center font-semibold mt-1 ${previewRemaining <= 0 ? "text-positive" : "text-muted-foreground"}`}>
                   {previewRemaining <= 0
-                    ? "🎯 RISK FREE — all costs recovered!"
+                    ? `🎯 RISK FREE — Surplus: ${formatCurrencyUnsigned(Math.abs(previewRemaining))}`
                     : `Still need ${formatCurrencyUnsigned(previewRemaining)} more to break even`}
                 </p>
               </div>

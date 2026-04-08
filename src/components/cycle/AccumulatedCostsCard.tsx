@@ -46,7 +46,7 @@ export default function AccumulatedCostsCard({ cycle }: Props) {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Remaining to recover:</span>
             <span className={`font-medium ${cycle.remaining_costs <= 0 ? "text-positive" : "text-negative"}`}>
-              {cycle.remaining_costs <= 0 ? "🎯 RISK FREE" : formatCurrencyUnsigned(cycle.remaining_costs)}
+              {cycle.remaining_costs <= 0 ? `🎯 RISK FREE — Surplus: ${formatCurrencyUnsigned(Math.abs(cycle.remaining_costs))}` : formatCurrencyUnsigned(cycle.remaining_costs)}
             </span>
           </div>
         </div>
