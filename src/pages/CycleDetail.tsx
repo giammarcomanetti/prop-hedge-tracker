@@ -184,7 +184,23 @@ export default function CycleDetail() {
   const previewSplit = parseFloat(profitSplit) || 80;
   const previewSessionLoss = parseFloat(sessionBrokerLoss) || 0;
   const previewNet = payoutInputMode === "gross" ? previewAmount * (previewSplit / 100) : previewAmount;
-  const previewNewAccumulated = cycle.accumulated_costs + previewSessionLoss;
+
+  // Fee refund logic: check if THIS payout triggers a refund
+  const existingPayoutCount = cycle.phases.filter(p => p.phase_type === "Funded Hedge" && p.status === "Pass").length;
+  const newPayoutCount = existingPayoutCount + 1;
+  const policy = cycle.fee_refund_policy || "Never";
+  const refundThreshold: Record<string, number> = {
+    "First payout": 1,
+    "Second payout": 2,
+    "Third payout": 3,
+    "Fourth payout": 4,
+    "Never": Infinity,
+  };
+  const alreadyRefunded = cycle.fee_refunded;
+  const willRefundNow = !alreadyRefunded && newPayoutCount >= (refundThreshold[policy] ?? Infinity);
+  const feeRefundAmount = willRefundNow ? cycle.challenge_fee : 0;
+
+  const previewNewAccumulated = cycle.accumulated_costs + previewSessionLoss - feeRefundAmount;
   const previewRemaining = previewNewAccumulated - cycle.total_net_payouts - previewNet;
 
   // Funded blown preview
