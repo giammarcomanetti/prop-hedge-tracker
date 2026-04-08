@@ -28,7 +28,8 @@ export default function CycleDetail() {
   const [activePhaseId, setActivePhaseId] = useState<string | null>(null);
 
   // Funded hedge payout fields
-  const [grossPayout, setGrossPayout] = useState("");
+  const [payoutInputMode, setPayoutInputMode] = useState<"gross" | "net">("gross");
+  const [payoutAmount, setPayoutAmount] = useState("");
   const [profitSplit, setProfitSplit] = useState("80");
   const [sessionBrokerLoss, setSessionBrokerLoss] = useState("");
   const [fundedBrokerGain, setFundedBrokerGain] = useState("");
