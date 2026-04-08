@@ -312,7 +312,7 @@ export default function CycleDetail() {
           {/* Risk free banner + close cycle button */}
           {cycle.is_risk_free && cycle.cycle_status === "Active" && (
             <div className="bg-positive/10 border border-positive/30 rounded-xl p-5 text-center space-y-3">
-              <p className="text-lg font-bold text-positive">🎯 RISK FREE — all costs recovered!</p>
+              <p className="text-lg font-bold text-positive">🎯 RISK FREE — Surplus: {formatCurrencyUnsigned(Math.abs(cycle.remaining_costs))}</p>
               <p className="text-sm text-muted-foreground">You can continue adding sessions or close the cycle.</p>
               <Button onClick={handleCloseCycleCompleted}>
                 <CheckCircle className="w-4 h-4 mr-1" /> Close Cycle as Completed
