@@ -99,10 +99,15 @@ export default function CycleDetail() {
   const handlePayoutReceived = () => {
     const phase = cycle.phases.find(p => p.id === activePhaseId);
     if (!phase) return;
-    const gross = parseFloat(grossPayout) || 0;
+    const amount = parseFloat(payoutAmount) || 0;
     const split = parseFloat(profitSplit) || 80;
     const loss = parseFloat(sessionBrokerLoss) || 0;
-    const netAmount = gross * (split / 100);
+
+    // Calculate net based on input mode
+    const netAmount = payoutInputMode === "gross" ? amount * (split / 100) : amount;
+    const grossAmount = payoutInputMode === "gross" ? amount : amount / (split / 100);
+
+    console.log(`[Payout] Mode: ${payoutInputMode}, Amount: ${amount}, Net: ${netAmount}, Gross: ${grossAmount}, Loss: ${loss}`);
 
     // Record broker loss on this session
     updatePhase({ ...phase, status: "Pass", broker_loss: loss });
@@ -113,16 +118,17 @@ export default function CycleDetail() {
       cycle_id: cycle.id,
       phase_id: phase.id,
       payout_number: payoutNumber,
-      gross_amount: gross,
+      gross_amount: grossAmount,
       profit_split_pct: split,
       net_amount: netAmount,
       date: new Date().toISOString().split("T")[0],
       notes: "",
     });
 
-    setGrossPayout("");
+    setPayoutAmount("");
     setProfitSplit("80");
     setSessionBrokerLoss("");
+    setPayoutInputMode("gross");
     setPayoutOpen(false);
   };
 
