@@ -405,22 +405,39 @@ export default function CycleDetail() {
       {/* Payout Received Dialog */}
       <Dialog open={payoutOpen} onOpenChange={setPayoutOpen}>
         <DialogContent className="bg-card border-border">
-          <DialogHeader><DialogTitle className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-positive" /> Payout Received</DialogTitle></DialogHeader>
+           <DialogHeader><DialogTitle className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-positive" /> Payout Received</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Gross Payout ($)</Label>
-              <Input type="number" min="0" value={grossPayout} onChange={e => setGrossPayout(e.target.value)} placeholder="e.g. 5000" autoFocus />
+            {/* Gross/Net Toggle */}
+            <div className="flex items-center gap-3">
+              <span className={`text-sm ${payoutInputMode === "gross" ? "text-foreground font-medium" : "text-muted-foreground"}`}>Gross Payout</span>
+              <Switch
+                checked={payoutInputMode === "net"}
+                onCheckedChange={(checked) => {
+                  setPayoutInputMode(checked ? "net" : "gross");
+                  setPayoutAmount("");
+                }}
+              />
+              <span className={`text-sm ${payoutInputMode === "net" ? "text-foreground font-medium" : "text-muted-foreground"}`}>Net Payout</span>
             </div>
+
             <div>
-              <Label>Profit Split (%)</Label>
-              <Input type="number" min="0" max="100" value={profitSplit} onChange={e => setProfitSplit(e.target.value)} placeholder="80" />
+              <Label>{payoutInputMode === "gross" ? "Gross Payout ($)" : "Net Payout ($)"}</Label>
+              <Input type="number" min="0" value={payoutAmount} onChange={e => setPayoutAmount(e.target.value)} placeholder="e.g. 5000" autoFocus />
             </div>
+
+            {payoutInputMode === "gross" && (
+              <div>
+                <Label>Profit Split (%)</Label>
+                <Input type="number" min="0" max="100" value={profitSplit} onChange={e => setProfitSplit(e.target.value)} placeholder="80" />
+              </div>
+            )}
+
             <div>
               <Label>Broker Loss This Session ($)</Label>
               <Input type="number" min="0" value={sessionBrokerLoss} onChange={e => setSessionBrokerLoss(e.target.value)} placeholder="e.g. 800" />
             </div>
 
-            {(grossPayout || sessionBrokerLoss) && (
+            {(payoutAmount || sessionBrokerLoss) && (
               <div className="bg-secondary/50 rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Net payout:</span>
@@ -444,7 +461,7 @@ export default function CycleDetail() {
                 </div>
                 <p className={`text-center font-semibold mt-1 ${previewRemaining <= 0 ? "text-positive" : "text-muted-foreground"}`}>
                   {previewRemaining <= 0
-                    ? "🎯 RISK FREE — all costs recovered!"
+                    ? `🎯 RISK FREE — Surplus: ${formatCurrencyUnsigned(Math.abs(previewRemaining))}`
                     : `Still need ${formatCurrencyUnsigned(previewRemaining)} more to break even`}
                 </p>
               </div>
