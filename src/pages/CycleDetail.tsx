@@ -325,14 +325,23 @@ export default function CycleDetail() {
             </div>
           ))}
 
-          {/* Risk free banner + close cycle button */}
-          {cycle.is_risk_free && cycle.cycle_status === "Active" && (
-            <div className="bg-positive/10 border border-positive/30 rounded-xl p-5 text-center space-y-3">
-              <p className="text-lg font-bold text-positive">🎯 RISK FREE — Surplus: {formatCurrencyUnsigned(Math.abs(cycle.remaining_costs))}</p>
-              <p className="text-sm text-muted-foreground">You can continue adding sessions or close the cycle.</p>
-              <Button onClick={handleCloseCycleCompleted}>
-                <CheckCircle className="w-4 h-4 mr-1" /> Close Cycle as Completed
-              </Button>
+          {/* Post-payout action buttons (show when there are payouts and no active hedge session) */}
+          {fundedHedgeSessions.length > 0 && !hasActiveFundedHedge && cycle.cycle_status === "Active" && (
+            <div className={`border rounded-xl p-5 text-center space-y-3 ${cycle.is_risk_free ? "bg-positive/10 border-positive/30" : "bg-card border-border"}`}>
+              {cycle.is_risk_free && (
+                <p className="text-lg font-bold text-positive">🎯 RISK FREE — Surplus: {formatCurrencyUnsigned(Math.abs(cycle.remaining_costs))}</p>
+              )}
+              {!cycle.is_risk_free && cycle.remaining_costs > 0 && (
+                <p className="text-sm text-muted-foreground">Still need <span className="text-negative font-semibold">{formatCurrencyUnsigned(cycle.remaining_costs)}</span> to break even</p>
+              )}
+              <div className="flex items-center justify-center gap-3">
+                <Button variant="outline" onClick={handleAddFundedHedge}>
+                  <Plus className="w-4 h-4 mr-1" /> Add Another Hedge Session
+                </Button>
+                <Button onClick={handleCloseCycleCompleted}>
+                  <CheckCircle className="w-4 h-4 mr-1" /> Close Cycle as Completed
+                </Button>
+              </div>
             </div>
           )}
         </div>
